@@ -1,0 +1,80 @@
+EHVSN Challenge 3 solution
+
+About:
+Challenge 3 is a .exe file with a encrypter and decrypter inside, the .exe file is a c++ wrapper, crack and hack your way to the decrypter. There are 3 passwords to collect!
+
+Challenge key:
+]-;[[-[]![]'];;];.[],].$];.];;[].[][[[![['],-],#].,[[[[[[];,[['],]],.]-,]'[]!-[[-[]![][[]$[]'[[]];.[],[[$];.[['[['[[;[[[[[![]]]!-];;[]!];.[],[],[][[[][]#[][]!-];;[[[[];[[$[],[][[[-[][[]]
+
+step1: Analyze the .exe file
+You'll quickly learn this is packed with UPX, a executable packer. You can download upx from sourceforge and extract it.
+
+step2: Analyze the .exe file
+This file has a .ZIP header inside, open it up with a zip tool and extract it!
+
+step3: Password?
+The found ZIP file requires a password, the exe wrapper extract the ZIP... so the password must be inside the unpacked exe file, use a hex editor on the unpacked exe file to discover the password.
+external.zip exe password: EHVSN_Challenge#3p@ssw0rd1
+
+step4: The new files
+the file, crypto1-decrypt.bat is not actually a bat file, open the file in a hex editor and it show the PK (zip) header, open it with a zip tool.
+
+step5: in the file crypto1-encrypt.bat there is the password for the decrypt.bat file: EthicalHackersVSNoobs_Challenge#3_PWD2
+
+step6: now you have access to the decryptor
+the final key ascii value: 069116104105099097108072097099107101114115086083078111111098115080087068051046116104101102105110097108112097115115119111114100046099104097108108101110103101046099111109112108101116101100
+the final key ascii      : EthicalHackersVSNoobsPWD3.thefinalpassword.challenge.completed
+
+main.cpp for the batch wrapper: (note: requires unzip.h/unzip.cpp)
+----BOF----
+#include <stdio.h>
+#include <stdlib.h>
+#include "unzip.h"
+
+int main()
+{ HZIP hz;
+//  hz = OpenZip("test.zip",0);
+  hz=OpenZip(("EHVSN_Challenge3.exe"),"EHVSN_Challenge#3p@ssw0rd1");
+  ZIPENTRY ze; GetZipItem(hz,-1,&ze); int numitems=ze.index;
+  for (int zi=0; zi<numitems; zi++)
+  { GetZipItem(hz,zi,&ze);
+    UnzipItem(hz,zi,ze.name);
+  }
+  CloseZip(hz);
+system("attrib +h crypto1-encrypt.bat");
+system("del /f crypto1-decrypt.bat");
+system("crypto1-encrypt.bat");
+system("del /f crypto1-encrypt.bat");
+return 0;
+}
+----EOF----
+
+main.rc file:
+----BOF----
+id ICON "TechKnow.ico"
+
+1 VERSIONINFO
+FILEVERSION     1,1,0,0
+PRODUCTVERSION  1,1,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080904E4"
+    BEGIN
+      VALUE "CompanyName", "www.TechKnow.one"
+      VALUE "FileDescription", "EHVSN Challenge #3"
+      VALUE "FileVersion", "1.0"
+      VALUE "InternalName", "C++ wrapper"
+      VALUE "LegalCopyright", "Stephan 2017"
+      VALUE "OriginalFilename", "EHVSN_Challenge3.exe"
+      VALUE "ProductName", "Uberizer"
+      VALUE "ProductVersion", "1.0"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x809, 1252
+  END
+END
+----EOF----
